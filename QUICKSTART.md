@@ -2,6 +2,8 @@
 
 Get the Daily Curator app running in minutes!
 
+> **💡 Mac Users**: See [MAC_SETUP.md](MAC_SETUP.md) for complete macOS setup with Homebrew and PostgreSQL installation!
+
 ## Prerequisites Checklist
 
 - [ ] Python 3.10+ installed
@@ -19,7 +21,7 @@ Get the Daily Curator app running in minutes!
 cd backend
 
 # Create virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
