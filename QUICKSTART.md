@@ -1,118 +1,184 @@
 # Quick Start Guide
 
-Get the Daily Curator app running in minutes!
+Get Daily Curator running in under 20 minutes.
 
-> **💡 Mac Users**: See [MAC_SETUP.md](MAC_SETUP.md) for complete macOS setup with Homebrew and PostgreSQL installation!
+> **Are you on Mac?** 👉 See [MAC_SETUP.md](MAC_SETUP.md) — it has detailed step-by-step instructions including installing everything you need.
+>
+> **Windows/Linux?** 👉 Follow this guide, but install PostgreSQL using your system's package manager first.
 
-## Prerequisites Checklist
+---
 
-- [ ] Python 3.10+ installed
-- [ ] Node.js 16+ installed
-- [ ] PostgreSQL 12+ installed and running
-- [ ] Anthropic API Key (get at https://console.anthropic.com)
-- [ ] NewsAPI Key (free tier at https://newsapi.org)
+## What You Need Before Starting
 
-## Step-by-Step Setup
+1. **Two free API keys** (takes 5 minutes):
+   - [Anthropic API Key](https://console.anthropic.com) — for article summaries
+   - [NewsAPI Key](https://newsapi.org) — for news articles
 
-### 1. Backend Setup (5 minutes)
+2. **Three things installed on your computer**:
+   - Python 3.10 or newer
+   - Node.js 16 or newer
+   - PostgreSQL 12 or newer
+
+**Mac user?** Go to [MAC_SETUP.md](MAC_SETUP.md) — it walks you through installing all of these.
+
+---
+
+## If You Already Have Everything Installed
+
+### Step 1: Get Your API Keys
+
+**Get Anthropic Key:**
+1. Visit https://console.anthropic.com
+2. Sign up or log in
+3. Click "API Keys"
+4. Click "Create Key"
+5. Copy and save the key
+
+**Get NewsAPI Key:**
+1. Visit https://newsapi.org
+2. Sign up (free)
+3. Verify your email
+4. Copy your API key
+
+Keep these keys handy.
+
+---
+
+### Step 2: Backend Setup
+
+Open Terminal and run these commands one at a time:
 
 ```bash
-# Navigate to backend
 cd backend
+```
 
-# Create virtual environment
+```bash
 python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+source venv/bin/activate
+```
 
-# Install dependencies
+```bash
 pip install -r requirements.txt
+```
 
-# Create .env file
+```bash
 cp .env.example .env
-
-# Edit .env and add your keys:
-# ANTHROPIC_API_KEY=your_key_here
-# NEWS_API_KEY=your_key_here
-# DATABASE_URL=postgresql://user:password@localhost:5432/daily_news_db
 ```
 
-**Start the backend:**
+Now edit the `.env` file. Open it with:
+
 ```bash
-uvicorn app.main:app --reload
+nano .env
 ```
-✅ Backend running at http://localhost:8000
 
-### 2. Frontend Setup (3 minutes)
+Change it to (replace the `YOUR_KEY_HERE` parts with your actual keys):
 
-```bash
-# In another terminal, navigate to frontend
-cd frontend
-
-# Install dependencies
-npm install
-
-# Create .env file
-cp .env.example .env
-
-# Start the app
-npm start
 ```
-✅ Frontend running at http://localhost:3000
+DATABASE_URL=postgresql://your_username:your_password@localhost:5432/daily_news_db
+ANTHROPIC_API_KEY=sk-ant-YOUR_ANTHROPIC_KEY_HERE
+NEWS_API_KEY=YOUR_NEWSAPI_KEY_HERE
+DEBUG=False
+```
 
-## First Steps
+Save by pressing `Control+X`, then `y`, then `Enter`.
 
-1. **Visit Dashboard**: Open http://localhost:3000
-2. **Click "Fetch Now"**: Manually trigger article fetching
-3. **Add Topics**: Click "Domains" panel to customize your interests
-4. **Suggest Sources**: Add your preferred news sources
-5. **Read Articles**: Expand articles to see full content and summaries
-6. **Provide Feedback**: Use heart, helpful, or skip buttons
+Initialize database:
 
-## Common Issues
-
-### Backend won't start
 ```bash
-# Check PostgreSQL is running
-# Verify DATABASE_URL in .env
-# Try rebuilding database:
 python -c "from app.core.database import init_db; init_db()"
 ```
 
+Start backend:
+
+```bash
+uvicorn app.main:app --reload
+```
+
+✅ You should see: `Uvicorn running on http://127.0.0.1:8000`
+
+Keep this Terminal window open.
+
+---
+
+### Step 3: Frontend Setup
+
+Open a **NEW Terminal window** and run:
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm start
+```
+
+✅ Your browser should open automatically at http://localhost:3000
+
+---
+
+## Using the App
+
+1. **Click "Fetch Now"** in the sidebar
+2. **Wait** 30-60 seconds (it's fetching and summarizing articles)
+3. **Articles appear** in the feed
+4. **Click articles to expand** and read full content
+5. **Add topics** using the "Domains" panel
+6. **Suggest sources** using the "Sources" panel
+7. **Use buttons**: Heart articles, mark as helpful, share with others
+
+---
+
+## Troubleshooting
+
+### PostgreSQL not running
+```bash
+# Mac users:
+brew services start postgresql@15
+
+# Others: see your PostgreSQL installation docs
+```
+
+### "ModuleNotFoundError"
+Make sure `(venv)` shows at the start of your Terminal line. If not:
+```bash
+source venv/bin/activate
+```
+
+### "Port 3000/8000 already in use"
+Find and kill the process:
+```bash
+lsof -i :3000        # for port 3000
+lsof -i :8000        # for port 8000
+kill -9 <PID>        # replace PID with the number shown
+```
+
 ### No articles appearing
-- Verify NEWS_API_KEY is valid
-- Check API quota hasn't been exceeded
-- Try clicking "Fetch Now"
+1. Verify your API keys are correct in `backend/.env`
+2. Click "Fetch Now" and wait 30-60 seconds
+3. Check browser console (F12) for errors
 
-### Frontend can't reach backend
-- Ensure backend is running on port 8000
-- Check REACT_APP_API_URL in frontend/.env
-- Check browser console for CORS errors
+---
 
-## What's Next?
+## Next Time You Run the App
 
-- ✅ Default domains are auto-created
-- ✅ Default sources are initialized
-- ✅ Scheduler will fetch at 5am and 5pm ET daily
-- 🔄 Articles auto-prioritize based on relevance
-- 🤖 Summaries generated via Claude AI
+**Terminal 1:**
+```bash
+cd backend
+source venv/bin/activate
+uvicorn app.main:app --reload
+```
 
-## Default Domains
+**Terminal 2:**
+```bash
+cd frontend
+npm start
+```
 
-The app comes with 5 default topics:
-- Technology Industry
-- Artificial Intelligence
-- Future of Work
-- Entertainment and Media Industry
-- Data Management
+---
 
-Add/remove topics in the sidebar!
+## Need Help?
 
-## API Documentation
+See [MAC_SETUP.md](MAC_SETUP.md) for detailed troubleshooting and explanations.
 
-Full API docs available at: http://localhost:8000/docs
+Full documentation: [README.md](README.md)
 
-## Learn More
-
-See [README.md](README.md) for comprehensive documentation, feature details, and deployment instructions.
-
-Happy curating! 🎨📚
+**Happy curating! 🎨📚**

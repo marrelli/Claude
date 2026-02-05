@@ -1,282 +1,416 @@
-# macOS Setup Guide
+# macOS Setup Guide for Beginners
 
-Complete walkthrough for running Daily Curator on Mac.
+Complete step-by-step walkthrough. No experience needed! **Total time: ~20 minutes**
 
-## Prerequisites on Mac
+---
 
-### 1. Install Homebrew (if not already installed)
+## What You'll Need First
+
+### 1. Get Your API Keys (5 minutes)
+
+You need two free API keys. Don't worry — this is just copy/paste.
+
+**Anthropic (Claude) API Key:**
+1. Go to https://console.anthropic.com
+2. Sign in or create account
+3. Click "API Keys" on left menu
+4. Click "Create Key" button
+5. Copy the key (looks like: `sk-ant-abc123...`)
+6. Save it somewhere safe (notepad, email, etc.)
+
+**NewsAPI Key:**
+1. Go to https://newsapi.org
+2. Sign up for free
+3. Verify your email
+4. Go to "API Keys" dashboard
+5. Copy your key
+6. Save it somewhere
+
+Keep these keys handy — you'll paste them later.
+
+---
+
+## Step 1: Open Terminal
+
+This is where you'll type commands.
+
+1. Press **Command (⌘) + Space** on your keyboard
+2. Type `terminal`
+3. Press Enter
+4. A window opens — this is Terminal
+
+**Tip:** You can resize and keep Terminal open on the side.
+
+---
+
+## Step 2: Install Homebrew
+
+Homebrew is a tool that installs software for you. Copy and paste this **entire command** into Terminal, then press Enter:
+
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-### 2. Install PostgreSQL via Homebrew
+Wait for it to finish (takes 2-5 minutes). You'll see text scrolling.
+
+**Expected output:** "Installation successful!" at the end
+
+---
+
+## Step 3: Install PostgreSQL (Database)
+
+This stores all your articles and preferences.
+
+Copy and paste this into Terminal and press Enter:
+
 ```bash
 brew install postgresql@15
-
-# Start PostgreSQL service
-brew services start postgresql@15
-
-# Verify it's running
-brew services list
 ```
 
-### 3. Create Database and User
-```bash
-# Connect to PostgreSQL
-psql postgres
+Wait for it to complete.
 
-# In the PostgreSQL prompt, run:
-CREATE USER daily_curator WITH PASSWORD 'your_password_here';
+Then, copy and paste this and press Enter:
+
+```bash
+brew services start postgresql@15
+```
+
+**What this does:** Starts the database in the background automatically.
+
+---
+
+## Step 4: Create Your Database
+
+Copy and paste this entire block into Terminal and press Enter:
+
+```bash
+psql postgres
+```
+
+This opens the database prompt. You'll see: `postgres=#`
+
+Now copy and paste each of these commands one at a time, pressing Enter after each:
+
+```sql
+CREATE USER daily_curator WITH PASSWORD 'curator123';
 CREATE DATABASE daily_news_db OWNER daily_curator;
 ALTER ROLE daily_curator CREATEDB;
 \q
-
-# Test connection
-psql -U daily_curator -d daily_news_db -h localhost
-\q
 ```
 
-### 4. Install Python 3.10+ (if needed)
+**What each line does:**
+- Line 1: Creates a user (username: `daily_curator`, password: `curator123`)
+- Line 2: Creates the database
+- Line 3: Gives the user permission
+- Line 4: Exits the database
+
+You should be back at the regular Terminal prompt (looks like: `YourName@MacBook ~ %`)
+
+---
+
+## Step 5: Install Python & Node.js
+
+Copy and paste each command separately, pressing Enter after each:
+
 ```bash
-# Check current Python version
-python3 --version
-
-# If you need a specific version, use Homebrew
 brew install python@3.11
-
-# Verify
-python3.11 --version
-
-# You can also use pyenv for multiple Python versions:
-brew install pyenv
-pyenv install 3.11.0
-pyenv local 3.11.0
 ```
 
-### 5. Install Node.js
+Wait for it to finish, then:
+
 ```bash
 brew install node
-
-# Verify
-node --version
-npm --version
 ```
 
-## Setup Instructions
+Wait for it to finish.
 
-### Terminal Setup (Do This First)
+**Verify they installed:** Copy and paste each of these:
 
 ```bash
-# Open Terminal and navigate to the project
-cd /path/to/Claude
+python3.11 --version
+node --version
+```
 
-# Create a .env file for shell variables (optional but helpful)
-cat > backend/.env << EOF
-DATABASE_URL=postgresql://daily_curator:your_password_here@localhost:5432/daily_news_db
-ANTHROPIC_API_KEY=sk-ant-your_key_here
+You should see version numbers appear (like `Python 3.11.0` and `v18.x.x`).
+
+---
+
+## Step 6: Download the Project
+
+If you haven't already, download/clone the project.
+
+**In Terminal**, go to where you want to save it:
+
+```bash
+cd ~/Documents
+```
+
+Then download the project (ask whoever gave you this if you need the clone command).
+
+Once you have the folder, navigate into it:
+
+```bash
+cd Claude
+```
+
+You should be in the project folder now.
+
+---
+
+## Step 7: Backend Setup
+
+This is the "brain" of the app.
+
+**Copy and paste each command one at a time:**
+
+```bash
+cd backend
+```
+
+This takes you to the backend folder.
+
+```bash
+python3.11 -m venv venv
+```
+
+This creates an isolated environment for the backend (prevents conflicts with other projects).
+
+```bash
+source venv/bin/activate
+```
+
+This activates the environment. You should see `(venv)` appear at the start of your Terminal line.
+
+```bash
+pip install -r requirements.txt
+```
+
+This installs all the code dependencies. Takes 2-3 minutes. Lots of text will scroll.
+
+Now, create the settings file:
+
+```bash
+cp .env.example .env
+```
+
+Now, edit the file to add your API keys. Use this command:
+
+```bash
+nano .env
+```
+
+A text editor opens. You'll see:
+
+```
+DATABASE_URL=postgresql://user:password@localhost:5432/daily_news_db
+ANTHROPIC_API_KEY=sk-ant-...
 NEWS_API_KEY=your_news_api_key_here
 DEBUG=False
-EOF
 ```
 
-### 1. Backend Setup
+**Edit it to look like this** (replace the examples with your real keys):
+
+```
+DATABASE_URL=postgresql://daily_curator:curator123@localhost:5432/daily_news_db
+ANTHROPIC_API_KEY=sk-ant-YOUR_KEY_HERE
+NEWS_API_KEY=YOUR_KEY_HERE
+DEBUG=False
+```
+
+To save:
+1. Press **Control + X** (not Command)
+2. Type `y` and press Enter
+3. Press Enter again
+
+Now, create the database tables:
 
 ```bash
-# Navigate to backend
-cd backend
-
-# Create virtual environment
-python3.11 -m venv venv
-
-# Activate it
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Initialize database
 python -c "from app.core.database import init_db; init_db()"
+```
 
-# Start backend server
+This sets up the database. You should see no errors (or just a brief message).
+
+**Start the backend:**
+
+```bash
 uvicorn app.main:app --reload
 ```
 
-✅ Backend running at http://localhost:8000
+Wait for text that says: `Uvicorn running on http://127.0.0.1:8000`
 
-### 2. Frontend Setup (New Terminal Window)
+✅ **Backend is running!** Keep this Terminal window open.
+
+---
+
+## Step 8: Frontend Setup
+
+**Open a NEW Terminal window** (Command + T or Command + N).
+
+Copy and paste each command:
 
 ```bash
-# Open a new Terminal tab/window
-# Navigate to project
-cd /path/to/Claude/frontend
+cd ~/Documents/Claude/frontend
+```
 
-# Install dependencies
+(or wherever you saved the project)
+
+```bash
 npm install
+```
 
-# Create .env file
-echo "REACT_APP_API_URL=http://localhost:8000" > .env
+Wait for this to complete (takes 1-2 minutes).
 
-# Start frontend
+Create settings file:
+
+```bash
+cp .env.example .env
+```
+
+Start the app:
+
+```bash
 npm start
 ```
 
-✅ Frontend running at http://localhost:3000
+Wait for text that says: `Compiled successfully!` and `On Your Network: http://...`
 
-## Common Mac Issues & Fixes
+✅ **Frontend is running!** A browser window should open automatically.
 
-### "PostgreSQL command not found"
+---
+
+## Step 9: Use the App!
+
+The app should now be running in your browser at http://localhost:3000
+
+1. **Click "Fetch Now"** - Gets articles from the news
+2. **Wait** - Takes 30-60 seconds to fetch and summarize
+3. **Articles appear** - You'll see news items
+4. **Add Topics** - Click the "Domains" sidebar to add topics you care about
+5. **Click articles** - Expand them to read full summaries
+6. **Like/Share** - Use the buttons to heart articles or share them
+
+---
+
+## Troubleshooting
+
+### "Command not found: psql"
+
+In Terminal, copy and paste this:
+
 ```bash
-# If brew services says it's running but psql doesn't work:
 echo 'export PATH="/usr/local/opt/postgresql@15/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
-
-# Then try again
-psql -U daily_curator -d daily_news_db
 ```
+
+Then try the database commands again.
 
 ### "Port 3000 already in use"
+
+Another app is using that port. Copy and paste:
+
 ```bash
-# Find what's using port 3000
 lsof -i :3000
-
-# Kill process (replace PID with the number shown)
-kill -9 <PID>
-
-# Or just use different port
-npm start -- --port 3001
 ```
+
+Find the number in the PID column, then copy and paste (replacing 12345 with that number):
+
+```bash
+kill -9 12345
+```
+
+Then try `npm start` again.
 
 ### "Port 8000 already in use"
+
+Same fix as above, but use `:8000`:
+
 ```bash
-# Find what's using port 8000
 lsof -i :8000
-
-# Kill it or run on different port
-uvicorn app.main:app --reload --port 8001
-```
-
-### "ModuleNotFoundError: No module named 'app'"
-```bash
-# Make sure virtual environment is activated
-source venv/bin/activate
-
-# If already activated, try installing again
-pip install -r requirements.txt
-```
-
-### "psycopg2 build failed"
-```bash
-# Common Mac issue - install build tools first
-xcode-select --install
-
-# Then reinstall requirements
-pip install --upgrade pip setuptools
-pip install -r requirements.txt
-```
-
-### "Connection refused to PostgreSQL"
-```bash
-# Verify PostgreSQL is running
-brew services list
-
-# If not running, start it
-brew services start postgresql@15
-
-# Check connection string in .env matches:
-# postgresql://daily_curator:your_password@localhost:5432/daily_news_db
-```
-
-## Useful Mac Commands
-
-### Manage PostgreSQL
-```bash
-# Start/stop PostgreSQL
-brew services start postgresql@15
-brew services stop postgresql@15
-
-# Check status
-brew services list
-
-# Connect to database
-psql -U daily_curator -d daily_news_db
-
-# View databases
-psql postgres -c "SELECT datname FROM pg_database;"
-```
-
-### Manage Virtual Environment
-```bash
-# Activate venv
-source backend/venv/bin/activate
-
-# Deactivate venv
-deactivate
-
-# Remove venv to start fresh
-rm -rf backend/venv
-```
-
-### Kill Stuck Processes
-```bash
-# Find process on port
-lsof -i :8000
-lsof -i :3000
-
-# Kill it
 kill -9 <PID>
 ```
 
-### View API Docs
-Open browser to: http://localhost:8000/docs
+### "ModuleNotFoundError" or errors about missing modules
 
-## Quick Restart
+Make sure `(venv)` shows at the start of your Terminal line. If not:
 
-Once everything is installed, for future sessions:
+```bash
+source venv/bin/activate
+```
+
+Then try the backend command again.
+
+### "No articles appearing"
+
+1. Click "Fetch Now" in the app
+2. Wait 30-60 seconds
+3. Check that your NEWS_API_KEY is correct in `backend/.env`
+
+### "Backend won't start"
+
+1. Check PostgreSQL is running:
+   ```bash
+   brew services list
+   ```
+   PostgreSQL should show "started"
+
+2. If not running, start it:
+   ```bash
+   brew services start postgresql@15
+   ```
+
+3. Check your DATABASE_URL is correct in `backend/.env` — it should be:
+   ```
+   postgresql://daily_curator:curator123@localhost:5432/daily_news_db
+   ```
+
+---
+
+## Everyday Use (Next Time)
+
+To run the app again later:
 
 **Terminal 1 (Backend):**
 ```bash
-cd /path/to/Claude/backend
+cd ~/Documents/Claude/backend
 source venv/bin/activate
 uvicorn app.main:app --reload
 ```
 
+Wait for "Uvicorn running..." message.
+
 **Terminal 2 (Frontend):**
 ```bash
-cd /path/to/Claude/frontend
+cd ~/Documents/Claude/frontend
 npm start
 ```
 
-**Open browser:** http://localhost:3000
+Wait for browser to open.
 
-## Mac-Specific Tips
+**That's it!** The app is ready.
 
-1. **Use iTerm2** instead of Terminal for better workflow (optional)
-2. **Use VS Code** for editing - works great with Python/React debugging
-3. **Keep PostgreSQL in Services**: Won't stop on restart with `brew services`
-4. **Python Versions**: If issues, try `python3.11` explicitly instead of `python3`
-5. **npm issues**: If stuck, try `npm cache clean --force`
+---
 
-## Performance Notes
+## Stopping the App
 
-- M1/M2 Macs: Everything runs great, use arm64 compatible packages
-- Intel Macs: Make sure Homebrew is installed for x86_64 compatibility
-- 8GB+ RAM recommended for comfortable local development
+When you're done:
+- Press **Control + C** in each Terminal window to stop
+- Close Terminal windows
 
-## Next Steps
+The next time you want to use it, follow "Everyday Use" section above.
 
-1. Visit http://localhost:3000
-2. Click "Fetch Now" to populate articles
-3. Add your topics
-4. Suggest new sources
-5. Enjoy your curated news!
+---
 
-## Getting Help
+## Need Help?
 
-Check these if something fails:
+If something doesn't work:
 
-1. Backend logs in terminal (look for red errors)
-2. Browser console (F12 → Console tab)
-3. PostgreSQL connection with: `psql -U daily_curator -d daily_news_db`
-4. API docs at http://localhost:8000/docs for testing endpoints
+1. **Read the error message carefully** - it often says exactly what's wrong
+2. **Check the Troubleshooting section above** - fixes most common problems
+3. **Try restarting** - close Terminal and start fresh
+4. **Check your API keys** - make sure you copied them correctly
 
-Happy curating! 🎨📚
+---
+
+**Happy curating! 🎨📚**
+
+Questions? Contact the person who gave you this app.
