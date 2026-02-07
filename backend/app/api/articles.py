@@ -23,8 +23,28 @@ async def get_articles_feed(
     article_service = ArticleService(db)
     articles, total = article_service.get_articles_feed(domain_id, limit, offset)
 
+    # Convert SQLAlchemy models to Pydantic schemas
+    articles_data = [
+        {
+            "id": a.id,
+            "title": a.title,
+            "content": a.content,
+            "original_url": a.original_url,
+            "summary": a.summary,
+            "contradictions": a.contradictions,
+            "source_count": a.source_count,
+            "source_list": a.source_list,
+            "priority_score": a.priority_score,
+            "created_at": a.created_at,
+            "fetched_at": a.fetched_at,
+            "source": {"id": a.source.id, "name": a.source.name, "url": a.source.url, "source_type": a.source.source_type} if a.source else None,
+            "domains": [{"id": d.id, "name": d.name, "keywords": d.keywords, "active": d.active, "created_at": d.created_at} for d in a.domains]
+        }
+        for a in articles
+    ]
+
     return {
-        "articles": articles,
+        "articles": articles_data,
         "total": total,
         "limit": limit,
         "offset": offset
