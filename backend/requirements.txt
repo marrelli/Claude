@@ -7,7 +7,7 @@ pydantic==2.5.0
 httpx==0.25.2
 feedparser==6.0.10
 apscheduler==3.10.4
-anthropic==0.7.11
+anthropic>=0.25.0
 python-dateutil==2.8.2
 news-api==0.1.2
 tweepy==4.14.0
