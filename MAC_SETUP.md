@@ -295,14 +295,41 @@ The app should now be running in your browser at http://localhost:3000
 
 ### "Command not found: psql"
 
-In Terminal, copy and paste this:
+This means Terminal can't find PostgreSQL even though it's installed.
+
+**First, check which shell you're using:**
+
+```bash
+echo $SHELL
+```
+
+**If it says `/bin/zsh`** (newer Macs), copy and paste this:
 
 ```bash
 echo 'export PATH="/usr/local/opt/postgresql@15/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-Then try the database commands again.
+**If it says `/bin/bash`** (older Macs), copy and paste this instead:
+
+```bash
+echo 'export PATH="/usr/local/opt/postgresql@15/bin:$PATH"' >> ~/.bash_profile
+source ~/.bash_profile
+```
+
+Then close Terminal completely and open a new Terminal window. Try again:
+
+```bash
+psql postgres
+```
+
+**If neither works**, try this direct path instead:
+
+```bash
+/usr/local/opt/postgresql@15/bin/psql postgres
+```
+
+If this works, PostgreSQL is installed correctly — you just need the PATH fix above.
 
 ### "Port 3000 already in use"
 
